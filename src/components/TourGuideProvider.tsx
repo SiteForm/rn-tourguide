@@ -15,7 +15,7 @@ const { useMemo, useEffect, useState, useRef } = React
 This is the maximum wait time for the steps to be registered before starting the tutorial
 At 60fps means 2 seconds
 */
-const MAX_START_TRIES = 120
+const MAX_START_TRIES = 1200
 
 export interface TourGuideProviderProps {
   tooltipComponent?: React.ComponentType<TooltipProps>
@@ -30,6 +30,7 @@ export interface TourGuideProviderProps {
   borderRadius?: number
   animationDuration?: number
   children: React.ReactNode
+  overlay?: 'svg' | 'view'
 }
 
 export const TourGuideProvider = ({
@@ -44,12 +45,15 @@ export const TourGuideProvider = ({
   maskOffset,
   borderRadius,
   verticalOffset,
-  startAtMount = false,
-}: TourGuideProviderProps) => {
+  overlay = 'svg',
+}: // startAtMount = false,
+TourGuideProviderProps) => {
   const [visible, setVisible] = useState<boolean | undefined>(undefined)
   const [currentStep, updateCurrentStep] = useState<IStep | undefined>()
-  const [steps, setSteps] = useState<Steps>({})
+  // const [steps, setSteps] = useState<Steps>({})
+  const stepsRef = useRef<Steps>({})
   const [canStart, setCanStart] = useState<boolean>(false)
+  const steps = stepsRef.current
 
   const startTries = useRef<number>(0)
   const mounted = useIsMounted()
@@ -73,9 +77,9 @@ export const TourGuideProvider = ({
   useEffect(() => {
     if (mounted && Object.entries(steps).length > 0) {
       setCanStart(true)
-      if (startAtMount) {
-        start()
-      }
+      // if (startAtMount) {
+      //   start()
+      // }
     }
   }, [mounted, steps])
 
@@ -125,36 +129,43 @@ export const TourGuideProvider = ({
   }
 
   const registerStep = (step: IStep) => {
-    setSteps((previousSteps) => {
-      return {
-        ...previousSteps,
-        [step.name]: step,
-      }
-    })
+    console.log(step.name, step.text, 'herer')
+    stepsRef.current = {
+      ...stepsRef.current,
+      [step.name]: step,
+    }
+    // setSteps((previousSteps) => {
+    //   return {
+    //     ...previousSteps,
+    //     [step.name]: step,
+    //   }
+    // })
   }
 
   const unregisterStep = (stepName: string) => {
+    console.log(stepName, 'unnn')
     if (!mounted) {
       return
     }
-    setSteps(
-      Object.entries(steps as StepObject)
-        .filter(([key]) => key !== stepName)
-        .reduce((obj, [key, val]) => Object.assign(obj, { [key]: val }), {}),
-    )
+    stepsRef.current = Object.entries(stepsRef.current)
+      .filter(([key]) => key !== stepName)
+      .reduce((obj, [key, val]) => Object.assign(obj, { [key]: val }), {})
   }
 
   const getCurrentStep = () => currentStep
 
   const start = async (fromStep?: number) => {
+    console.log(Object.keys(stepsRef.current))
+
     const currentStep = fromStep
-      ? (steps as StepObject)[fromStep]
+      ? (stepsRef.current as StepObject)[fromStep]
       : getFirstStep()
 
     if (startTries.current > MAX_START_TRIES) {
       startTries.current = 0
       return
     }
+
     if (!currentStep) {
       startTries.current += 1
       requestAnimationFrame(() => start(fromStep))
@@ -184,6 +195,7 @@ export const TourGuideProvider = ({
           ref={modal}
           {...{
             next,
+            overlay,
             prev,
             stop,
             visible,

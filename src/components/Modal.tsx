@@ -13,13 +13,16 @@ import {
 import { BorderRadiusObject, IStep, Labels, ValueXY } from '../types'
 import styles, { MARGIN } from './style'
 import { SvgMask } from './SvgMask'
+// import { SvgMask } from './SvgMask'
 import { Tooltip, TooltipProps } from './Tooltip'
+import ViewMask from './ViewMask'
 
 declare var __TEST__: boolean
 
 export interface ModalProps {
   ref: any
   currentStep?: IStep
+  overlay?: 'svg' | 'view'
   visible?: boolean
   isFirstStep: boolean
   isLastStep: boolean
@@ -72,6 +75,7 @@ export class Modal extends React.Component<ModalProps, State> {
     androidStatusBarVisible: false,
     backdropColor: 'rgba(0, 0, 0, 0.4)',
     labels: {},
+    overlay: 'svg',
   }
 
   layout?: Layout = {
@@ -87,8 +91,8 @@ export class Modal extends React.Component<ModalProps, State> {
     tooltipTranslateY: new Animated.Value(400),
     opacity: new Animated.Value(0),
     layout: undefined,
-    size: undefined,
-    position: undefined,
+    size: undefined as any,
+    position: undefined as any,
   }
 
   constructor(props: ModalProps) {
@@ -257,19 +261,41 @@ export class Modal extends React.Component<ModalProps, State> {
     this.props.stop()
   }
 
-  renderMask = () => (
-    <SvgMask
-      style={styles.overlayContainer}
-      size={this.state.size!}
-      position={this.state.position!}
-      easing={this.props.easing}
-      animationDuration={this.props.animationDuration}
-      backdropColor={this.props.backdropColor}
-      currentStep={this.props.currentStep}
-      maskOffset={this.props.maskOffset}
-      borderRadius={this.props.borderRadius}
-    />
-  )
+  renderMask = () => {
+    if (this.props.overlay === 'svg') {
+      return (
+        <SvgMask
+          style={styles.overlayContainer}
+          size={this.state.size!}
+          position={this.state.position!}
+          easing={this.props.easing}
+          animationDuration={this.props.animationDuration}
+          backdropColor={this.props.backdropColor}
+          currentStep={this.props.currentStep}
+          maskOffset={this.props.maskOffset}
+          borderRadius={this.props.borderRadius}
+        />
+      )
+    } else {
+      return (
+        <ViewMask
+          style={styles.overlayContainer}
+          size={this.state.size!}
+          position={this.state.position!}
+          easing={this.props.easing}
+          animationDuration={this.props.animationDuration}
+          backdropColor={this.props.backdropColor}
+          currentStep={this.props.currentStep}
+          maskOffset={this.props.maskOffset}
+          animated
+          layout={{
+            width: this.state.position!.x,
+            height: this.state.position!.y,
+          }}
+        />
+      )
+    }
+  }
 
   renderTooltip() {
     const { tooltipComponent: TooltipComponent } = this.props
@@ -319,7 +345,7 @@ export class Modal extends React.Component<ModalProps, State> {
           {contentVisible && (
             <>
               {this.renderMask()}
-              {this.renderTooltip()}
+              {!!this.props.currentStep?.text && this.renderTooltip()}
             </>
           )}
         </View>

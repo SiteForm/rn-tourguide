@@ -6,7 +6,7 @@ import { TourGuideContext } from './TourGuideContext'
 interface Props {
   name: string
   order: number
-  text: string
+  text?: string
   shape?: Shape
   active?: boolean
   maskOffset?: number

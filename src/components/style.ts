@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle, TextStyle } from 'react-native'
 
 export const Z_INDEX: number = 100
-export const MARGIN: number = 13
+export const MARGIN: number = 8
 export const OFFSET_WIDTH: number = 4
 
 export interface IStyle {
@@ -13,6 +13,7 @@ export interface IStyle {
   buttonText: TextStyle
   bottomBar: ViewStyle
   overlayContainer: ViewStyle
+  overlayRectangle: ViewStyle
 }
 
 export default StyleSheet.create<IStyle>({
@@ -57,6 +58,14 @@ export default StyleSheet.create<IStyle>({
   },
   overlayContainer: {
     position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    right: 0,
+  },
+  overlayRectangle: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0,0,0,0.2)',
     left: 0,
     top: 0,
     bottom: 0,

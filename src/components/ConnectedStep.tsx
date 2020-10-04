@@ -6,7 +6,7 @@ declare var __TEST__: boolean
 
 interface Props {
   name: string
-  text: string
+  text?: string
   order: number
   active?: boolean
   shape?: Shape
@@ -49,6 +49,7 @@ export class ConnectedStep extends React.Component<Props> {
   }
 
   register() {
+    console.log(this.props.name, this.props.text, 'restier')
     if (this.props.context && this.props.context.registerStep) {
       this.props.context.registerStep({
         target: this,

@@ -113,6 +113,7 @@ export class SvgMask extends Component<Props, State> {
 
   animationListener = () => {
     const d = this.getPath()
+    // console.log(d)
     this.rafID = requestAnimationFrame(() => {
       if (this.mask && this.mask.current) {
         if (IS_WEB) {
@@ -179,20 +180,25 @@ export class SvgMask extends Component<Props, State> {
       <View
         style={this.props.style}
         onLayout={this.handleLayout}
-        pointerEvents='none'
+        pointerEvents='box-none'
       >
         <Svg
           pointerEvents='none'
           width={this.state.canvasSize.x}
           height={this.state.canvasSize.y}
+          // style={{ backgroundColor: 'rgba(0, 0, 0, 0.55)' }}
+          onPress={() => console.log(21)}
         >
           <AnimatedSvgPath
+            // pointerEvents='none'
             ref={this.mask}
             fill={this.props.backdropColor}
             strokeWidth={0}
+            pointerEvents='box-only'
             fillRule='evenodd'
             d={FIRST_PATH}
             opacity={this.state.opacity as any}
+            onPress={() => console.log(1)}
           />
         </Svg>
       </View>

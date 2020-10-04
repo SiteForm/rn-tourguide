@@ -37,9 +37,10 @@ export const TourGuideZone = ({
 
   return (
     <Step
-      text={text ?? `Zone ${zone}`}
+      text={text}
       order={zone}
       name={`${zone}`}
+      active
       {...{
         shape,
         maskOffset,
