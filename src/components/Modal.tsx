@@ -34,6 +34,7 @@ export interface ModalProps {
   borderRadiusObject?: BorderRadiusObject
   androidStatusBarVisible: boolean
   backdropColor: string
+  tooltipHidden: boolean
   labels: Labels
   easing(value: number): number
   stop(): void
@@ -69,7 +70,7 @@ interface Move {
 export class Modal extends React.Component<ModalProps, State> {
   static defaultProps = {
     easing: Easing.elastic(0.7),
-    animationDuration: 400,
+    animationDuration: 300,
     tooltipComponent: Tooltip as any,
     tooltipStyle: {},
     androidStatusBarVisible: false,
@@ -102,6 +103,21 @@ export class Modal extends React.Component<ModalProps, State> {
   componentDidUpdate(prevProps: ModalProps) {
     if (prevProps.visible === true && this.props.visible === false) {
       this.reset()
+    }
+
+    const opacityAnim = Animated.timing(this.state.opacity, {
+      toValue: 0,
+      duration: 175,
+      useNativeDriver: true,
+    })
+
+    if (
+      prevProps.currentStep?.order !== this.props.currentStep?.order ||
+      !this.props.currentStep?.text ||
+      (this.props.tooltipHidden &&
+        prevProps.tooltipHidden !== this.props.tooltipHidden)
+    ) {
+      opacityAnim.start()
     }
   }
 
@@ -186,7 +202,7 @@ export class Modal extends React.Component<ModalProps, State> {
       tooltip.maxWidth = layout.width! - tooltip.left - MARGIN
     }
 
-    const duration = this.props.animationDuration! + 200
+    // const duration = this.props.animationDuration! + 200
     const toValue =
       verticalPosition === 'bottom'
         ? tooltip.top
@@ -194,18 +210,13 @@ export class Modal extends React.Component<ModalProps, State> {
           MARGIN -
           135 -
           (this.props.currentStep!.tooltipBottomOffset || 0)
-    const translateAnim = Animated.timing(this.state.tooltipTranslateY, {
+    const translateAnim = Animated.spring(this.state.tooltipTranslateY, {
       toValue,
-      duration,
-      easing: this.props.easing,
-      delay: duration,
+      bounciness: 4,
       useNativeDriver: true,
     })
-    const opacityAnim = Animated.timing(this.state.opacity, {
+    const opacityAnim = Animated.spring(this.state.opacity, {
       toValue: 1,
-      duration,
-      easing: this.props.easing,
-      delay: duration,
       useNativeDriver: true,
     })
     this.state.opacity.setValue(0)
@@ -300,6 +311,7 @@ export class Modal extends React.Component<ModalProps, State> {
   renderTooltip() {
     const { tooltipComponent: TooltipComponent } = this.props
     const { opacity } = this.state
+
     return (
       <Animated.View
         pointerEvents='box-none'
@@ -345,7 +357,7 @@ export class Modal extends React.Component<ModalProps, State> {
           {contentVisible && (
             <>
               {this.renderMask()}
-              {!!this.props.currentStep?.text && this.renderTooltip()}
+              {this.renderTooltip()}
             </>
           )}
         </View>

@@ -31,7 +31,10 @@ export class ConnectedStep extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.active !== prevProps.active) {
+    if (
+      this.props.active !== prevProps.active ||
+      this.props.text !== prevProps.text
+    ) {
       if (this.props.active) {
         this.register()
       } else {
@@ -49,7 +52,9 @@ export class ConnectedStep extends React.Component<Props> {
   }
 
   register() {
-    console.log(this.props.name, this.props.text, 'restier')
+    if (__DEV__) {
+      console.log(this.props.name, this.props.text, 'restier')
+    }
     if (this.props.context && this.props.context.registerStep) {
       this.props.context.registerStep({
         target: this,

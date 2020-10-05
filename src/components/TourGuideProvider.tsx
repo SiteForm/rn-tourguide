@@ -46,13 +46,12 @@ export const TourGuideProvider = ({
   borderRadius,
   verticalOffset,
   overlay = 'svg',
-}: // startAtMount = false,
-TourGuideProviderProps) => {
+}: TourGuideProviderProps) => {
   const [visible, setVisible] = useState<boolean | undefined>(undefined)
   const [currentStep, updateCurrentStep] = useState<IStep | undefined>()
-  // const [steps, setSteps] = useState<Steps>({})
   const stepsRef = useRef<Steps>({})
   const [canStart, setCanStart] = useState<boolean>(false)
+  const [tooltipHidden, setTooltipHidden] = useState(false)
   const steps = stepsRef.current
 
   const startTries = useRef<number>(0)
@@ -77,9 +76,6 @@ TourGuideProviderProps) => {
   useEffect(() => {
     if (mounted && Object.entries(steps).length > 0) {
       setCanStart(true)
-      // if (startAtMount) {
-      //   start()
-      // }
     }
   }, [mounted, steps])
 
@@ -129,21 +125,13 @@ TourGuideProviderProps) => {
   }
 
   const registerStep = (step: IStep) => {
-    console.log(step.name, step.text, 'herer')
     stepsRef.current = {
       ...stepsRef.current,
       [step.name]: step,
     }
-    // setSteps((previousSteps) => {
-    //   return {
-    //     ...previousSteps,
-    //     [step.name]: step,
-    //   }
-    // })
   }
 
   const unregisterStep = (stepName: string) => {
-    console.log(stepName, 'unnn')
     if (!mounted) {
       return
     }
@@ -155,7 +143,9 @@ TourGuideProviderProps) => {
   const getCurrentStep = () => currentStep
 
   const start = async (fromStep?: number) => {
-    console.log(Object.keys(stepsRef.current))
+    if (__DEV__) {
+      console.log(Object.keys(stepsRef.current))
+    }
 
     const currentStep = fromStep
       ? (stepsRef.current as StepObject)[fromStep]
@@ -172,9 +162,14 @@ TourGuideProviderProps) => {
     } else {
       eventEmitter.emit('start')
       await setCurrentStep(currentStep!)
+      setTooltipHidden(false)
       setVisible(true)
       startTries.current = 0
     }
+  }
+
+  const hideTooltip = (hide = true) => {
+    setTooltipHidden(hide)
   }
 
   return (
@@ -188,6 +183,7 @@ TourGuideProviderProps) => {
           start,
           stop,
           canStart,
+          hideTooltip,
         }}
       >
         {children}
@@ -210,6 +206,7 @@ TourGuideProviderProps) => {
             animationDuration,
             maskOffset,
             borderRadius,
+            tooltipHidden,
           }}
         />
       </TourGuideContext.Provider>

@@ -8,6 +8,7 @@ export const useTourGuideController = () => {
     stop,
     eventEmitter,
     getCurrentStep,
+    hideTooltip,
   } = React.useContext(TourGuideContext)
   return {
     start,
@@ -15,5 +16,6 @@ export const useTourGuideController = () => {
     eventEmitter,
     getCurrentStep,
     canStart,
+    hideTooltip,
   }
 }

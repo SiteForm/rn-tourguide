@@ -58,20 +58,20 @@ class ViewMask extends Component<Props, State> {
     size: ValueXY = this.props.size,
     position: ValueXY = this.props.position,
   ): void => {
-    // console.log(size, position)
-
     if (this.state.animated) {
       Animated.parallel([
-        Animated.timing(this.state.size, {
+        Animated.spring(this.state.size, {
           toValue: size,
-          duration: this.props.animationDuration,
-          easing: this.props.easing,
+          bounciness: 2,
+          // duration: this.props.animationDuration,
+          // easing: this.props.easing,
           useNativeDriver: false,
         }),
-        Animated.timing(this.state.position, {
+        Animated.spring(this.state.position, {
           toValue: position,
-          duration: this.props.animationDuration,
-          easing: this.props.easing,
+          bounciness: 2,
+          // duration: this.props.animationDuration,
+          // easing: this.props.easing,
           useNativeDriver: false,
         }),
       ]).start()
